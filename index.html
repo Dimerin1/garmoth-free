@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BDO Grind Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>⚔️ BDO Grind Tracker</h1>
+            <p class="subtitle">Calculate earnings with live market prices</p>
+        </header>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-label">Market Prices</span>
+                <span class="status-value" id="priceStatus">Loading...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Items Loaded</span>
+                <span class="status-value" id="itemCount">0</span>
+            </div>
+            <button class="refresh-btn" onclick="refreshPrices()">🔄 Refresh Prices</button>
+        </div>
+
+        <div class="main-grid">
+            <!-- Left Panel: Spot Configuration -->
+            <section class="config-panel">
+                <h2>📍 Grind Spot Setup</h2>
+
+                <div class="input-group">
+                    <label>Select Spot</label>
+                    <select id="spotSelect" class="spot-select">
+                        <!-- Populated by JavaScript -->
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Spot Name</label>
+                    <input type="text" id="spotName" value="Darkseeker's Retreat" placeholder="Enter spot name">
+                </div>
+
+                <div class="trash-section">
+                    <h3>🗑️ Trash Loot</h3>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>Trash Item Name</label>
+                            <input type="text" id="trashName" value="Decayed Cloth" placeholder="Trash item name">
+                        </div>
+                        <div class="input-group">
+                            <label>NPC Price (Silver)</label>
+                            <input type="number" id="trashPrice" value="46000" placeholder="46000">
+                        </div>
+                        <div class="input-group">
+                            <label>Your Trash/Hour</label>
+                            <input type="number" id="trashPerHour" value="41000" placeholder="41000">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="items-section">
+                    <h3>💎 Drop Items</h3>
+                    <div class="add-item-row">
+                        <input type="text" id="newItemName" placeholder="Item name (from market)"
+                            list="itemSuggestions">
+                        <datalist id="itemSuggestions"></datalist>
+                        <input type="number" id="newItemRate" placeholder="Drops/hr" step="0.001">
+                        <button class="add-btn" onclick="addItem()">+ Add</button>
+                    </div>
+
+                    <div class="items-table-container">
+                        <table class="items-table" id="itemsTable">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Market Price</th>
+                                    <th>Drops/hr</th>
+                                    <th>Silver/hr (100%)</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemsBody">
+                                <!-- Items added dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel: Results -->
+            <section class="results-panel">
+                <h2>💰 Earnings Breakdown</h2>
+
+                <div class="results-cards">
+                    <div class="result-card base">
+                        <div class="card-header">
+                            <span class="rate-badge">100%</span>
+                            <span class="rate-label">Base Drop Rate</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="trash-earnings">
+                                <span class="label">Trash Loot</span>
+                                <span class="value" id="trash100">0</span>
+                            </div>
+                            <div class="drop-earnings">
+                                <span class="label">Drop Items</span>
+                                <span class="value" id="drops100">0</span>
+                            </div>
+                            <div class="total-earnings">
+                                <span class="label">Total Silver/hr</span>
+                                <span class="value" id="total100">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="result-card scroll">
+                        <div class="card-header">
+                            <span class="rate-badge">320%</span>
+                            <span class="rate-label">Loot Scroll + Agris</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="trash-earnings">
+                                <span class="label">Trash Loot</span>
+                                <span class="value" id="trash320">0</span>
+                            </div>
+                            <div class="drop-earnings">
+                                <span class="label">Drop Items</span>
+                                <span class="value" id="drops320">0</span>
+                            </div>
+                            <div class="total-earnings">
+                                <span class="label">Total Silver/hr</span>
+                                <span class="value" id="total320">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="result-card arsha">
+                        <div class="card-header">
+                            <span class="rate-badge">370%</span>
+                            <span class="rate-label">Arsha Server</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="trash-earnings">
+                                <span class="label">Trash Loot</span>
+                                <span class="value" id="trash370">0</span>
+                            </div>
+                            <div class="drop-earnings">
+                                <span class="label">Drop Items</span>
+                                <span class="value" id="drops370">0</span>
+                            </div>
+                            <div class="total-earnings">
+                                <span class="label">Total Silver/hr</span>
+                                <span class="value" id="total370">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison-chart">
+                    <h3>📊 Comparison</h3>
+                    <div class="chart-bars">
+                        <div class="bar-group">
+                            <div class="bar bar-100" id="bar100"></div>
+                            <span>100%</span>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar bar-320" id="bar320"></div>
+                            <span>320%</span>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar bar-370" id="bar370"></div>
+                            <span>370%</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <footer>
+            <p>Prices from <a href="https://docs.google.com/spreadsheets/d/1HJpWrM05pDmreys8pmg0VuV0e5ZDJ0ePp_mXI-hGsJc"
+                    target="_blank">BDO Market API</a> • Built for grinders 🎮</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
