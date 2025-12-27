@@ -1,25 +1,15 @@
 // ===== Configuration =====
 const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1HJpWrM05pDmreys8pmg0VuV0e5ZDJ0ePp_mXI-hGsJc/gviz/tq?tqx=out:csv&gid=1464565304';
 
-// ===== Manual Price Overrides (for items not on market API or with API discrepancies) =====
+// ===== Manual Price Overrides (ONLY for items NOT on market) =====
 const MANUAL_PRICES = {
-    // Box items
+    // Box items (not directly tradeable)
     "forgotten limbo box": { name: "Forgotten Limbo Box", price: 1330000000 },
-
-    // DSR items with discrepancies
-    "origin of dark hunger": { name: "Origin of Dark Hunger", price: 1080000000 },  // 1.08B (Garmoth)
-    "kabua's artifact": { name: "Kabua's Artifact", price: 4820000000 },  // 4.82B (Garmoth)
-    "embers of resonance": { name: "Embers of Resonance", price: 43200000 },  // 43.2M (Garmoth)
-    "flame of resonance": { name: "Flame of Resonance", price: 4320000000 },  // 4.32B (Garmoth)
 
     // Paint items (not on market)
     "darkseekers' retreat paint": { name: "Darkseekers' Retreat Paint", price: 0 },
     "ash forest paint": { name: "Ash Forest Paint", price: 0 },
-    "lafi bedmountain's upgraded telescope": { name: "Lafi Bedmountain's Upgraded Telescope", price: 0 },
-
-    // Dehkia items
-    "dehkia's artifact - all evasion": { name: "Dehkia's Artifact - All Evasion", price: 8200000000 },  // 8.2B
-    "dehkia's artifact - all damage reduction": { name: "Dehkia's Artifact - All Damage Reduction", price: 8450000000 }  // 8.45B
+    "lafi bedmountain's upgraded telescope": { name: "Lafi Bedmountain's Upgraded Telescope", price: 0 }
 };
 
 // ===== Grind Spots Database =====
@@ -216,18 +206,20 @@ async function fetchPrices() {
         const response = await fetch(SHEET_URL);
         const csvText = await response.text();
 
-        // Parse CSV - Column A (index 0) = Name, Column E (index 4) = BasePrice
+        // Parse CSV - Columns: Name(0), Index(1), Count(2), TotalTrades(3), BasePrice(4), DailyVolume(5), EnhanceLevel(6), Region(8)
         const lines = csvText.split('\n');
         const headers = parseCSVLine(lines[0]);
 
         // Find the correct column indices
         let nameCol = 0;
-        let priceCol = 4; // BasePrice is typically column E
+        let tradesCol = 3;  // TotalTrades column
+        let priceCol = 4;   // BasePrice column
 
         // Try to find columns by header name
         headers.forEach((header, idx) => {
             const h = header.toLowerCase().replace(/"/g, '');
             if (h === 'name' || h === 'itemname') nameCol = idx;
+            if (h === 'totaltrades') tradesCol = idx;
             if (h === 'baseprice' || h === 'price') priceCol = idx;
         });
 
@@ -239,15 +231,17 @@ async function fetchPrices() {
             if (cols.length > priceCol) {
                 const name = cols[nameCol]?.replace(/"/g, '').trim();
                 const price = parseInt(cols[priceCol]?.replace(/"/g, '').replace(/,/g, '')) || 0;
+                const trades = parseInt(cols[tradesCol]?.replace(/"/g, '').replace(/,/g, '')) || 0;
 
                 if (name && price > 0) {
                     const key = name.toLowerCase();
                     // Don't override manual prices
                     if (!MANUAL_PRICES[key]) {
-                        // Keep the HIGHER price if duplicate entries exist
-                        if (!marketPrices[key] || price > marketPrices[key].price) {
+                        // Keep entry with HIGHEST TotalTrades (most traded = most accurate price)
+                        const existingTrades = marketPrices[key]?.trades || 0;
+                        if (!marketPrices[key] || trades > existingTrades) {
                             if (!marketPrices[key]) count++;
-                            marketPrices[key] = { name, price };
+                            marketPrices[key] = { name, price, trades };
                         }
                     }
                 }
