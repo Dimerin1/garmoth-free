@@ -265,6 +265,33 @@ function saveDisabledItems(spotKey, disabledItemNames) {
     }
 }
 
+// ===== Get Custom Trash Rate for a Spot =====
+function getCustomTrashRate(spotKey) {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY_CUSTOM_RATES);
+        if (saved) {
+            const allRates = JSON.parse(saved);
+            return allRates[spotKey]?.trashRate || null;
+        }
+    } catch (e) {
+        console.error('Error loading custom rates:', e);
+    }
+    return null;
+}
+
+// ===== Save Custom Trash Rate for a Spot =====
+function saveCustomTrashRate(spotKey, trashRate) {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY_CUSTOM_RATES);
+        const allRates = saved ? JSON.parse(saved) : {};
+        if (!allRates[spotKey]) allRates[spotKey] = {};
+        allRates[spotKey].trashRate = trashRate;
+        localStorage.setItem(STORAGE_KEY_CUSTOM_RATES, JSON.stringify(allRates));
+    } catch (e) {
+        console.error('Error saving custom rates:', e);
+    }
+}
+
 // ===== Populate Spot Dropdown =====
 function populateSpotDropdown() {
     const select = document.getElementById('spotSelect');
@@ -294,7 +321,10 @@ function loadSpot(spotKey) {
         document.getElementById('spotName').value = spot.name;
         document.getElementById('trashName').value = spot.trash.name;
         document.getElementById('trashPrice').value = spot.trash.price;
-        document.getElementById('trashPerHour').value = spot.trash.rate;
+
+        // Load custom trash rate or use default
+        const customTrashRate = getCustomTrashRate(spotKey);
+        document.getElementById('trashPerHour').value = customTrashRate !== null ? customTrashRate : spot.trash.rate;
 
         // Load items and apply saved disabled state
         const disabledItems = getDisabledItems(spotKey);
@@ -637,7 +667,19 @@ function setupEventListeners() {
 
     // Update results when trash loot values change
     document.getElementById('trashPrice').addEventListener('input', updateResults);
-    document.getElementById('trashPerHour').addEventListener('input', updateResults);
+
+    // Update results AND comparison table when trash/hr changes, and save custom rate
+    document.getElementById('trashPerHour').addEventListener('input', () => {
+        const trashRate = parseInt(document.getElementById('trashPerHour').value) || 0;
+
+        // Save custom trash rate for current spot
+        if (currentSpot && currentSpot !== 'custom') {
+            saveCustomTrashRate(currentSpot, trashRate);
+        }
+
+        updateResults();
+        updateComparisonTable();
+    });
 
     // Allow Enter key to add items
     document.getElementById('newItemName').addEventListener('keypress', (e) => {
@@ -667,8 +709,12 @@ function calculateSpotEarnings(spotKey, dropRateMultiplier) {
     // Get disabled items for this spot
     const disabledItems = getDisabledItems(spotKey);
 
+    // Get custom trash rate or use default
+    const customTrashRate = getCustomTrashRate(spotKey);
+    const trashRate = customTrashRate !== null ? customTrashRate : spot.trash.rate;
+
     // Trash loot is NOT affected by drop rate
-    const trashSilver = spot.trash.price * spot.trash.rate;
+    const trashSilver = spot.trash.price * trashRate;
 
     // Drop items ARE affected by drop rate
     let dropSilver = 0;
