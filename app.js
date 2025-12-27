@@ -10,7 +10,25 @@ const MANUAL_PRICES = {
     "darkseekers' retreat paint": { name: "Darkseekers' Retreat Paint", price: 0 },
     "ash forest paint": { name: "Ash Forest Paint", price: 0 },
     "tungrad ruins paint": { name: "Tungrad Ruins Paint", price: 0 },
-    "lafi bedmountain's upgraded telescope": { name: "Lafi Bedmountain's Upgraded Telescope", price: 0 }
+    "lafi bedmountain's upgraded telescope": { name: "Lafi Bedmountain's Upgraded Telescope", price: 0 },
+    "dokkebi forest paint": { name: "Dokkebi Forest Paint", price: 0 }
+};
+
+// ===== Calculated Prices (derived from crafting materials) =====
+// Ancient Spirit Dust: 5 Ancient Spirit Dust + 1 Black Stone = 1 Caphras Stone
+// Therefore: Ancient Spirit Dust price = (Caphras Stone price - Black Stone price) / 5
+const CALCULATED_ITEMS = {
+    "ancient spirit dust": {
+        name: "Ancient Spirit Dust",
+        calculate: (prices) => {
+            const caphrasPrice = prices["caphras stone"]?.price || 0;
+            const blackStonePrice = prices["black stone"]?.price || 0;
+            if (caphrasPrice > 0 && blackStonePrice > 0) {
+                return Math.max(0, Math.floor((caphrasPrice - blackStonePrice) / 5));
+            }
+            return 0;
+        }
+    }
 };
 
 // ===== Grind Spots Database =====
@@ -157,6 +175,26 @@ const GRIND_SPOTS = {
             { name: "Ancient Magic Crystal of Nature - Adamantine", rate: 0.089 },
             { name: "Tungrad Ruins Paint", rate: 0.102 }
         ]
+    },
+    "dokkebi forest": {
+        name: "[WIP] Dokkebi Forest",
+        trash: { name: "Discarded Kkebicap", price: 53000, rate: 31046 },
+        items: [
+            { name: "Faint Origin of Dark Hunger", rate: 0.35 },
+            { name: "WON Dawn Crystal - All AP", rate: 0.847 },
+            { name: "WON Dawn Crystal - Evasion", rate: 0.596 },
+            { name: "WON Dawn Crystal - Black Spirit's Rage", rate: 0.589 },
+            { name: "WON Dawn Crystal - Damage Reduction", rate: 0.584 },
+            { name: "WON Dawn Crystal - Accuracy", rate: 0.577 },
+            { name: "Caphras Stone", rate: 27.5 },
+            { name: "Ancient Spirit Dust", rate: 69.9 },
+            { name: "BON Dawn Crystal - All AP", rate: 0.019 },
+            { name: "BON Dawn Crystal - Black Spirit's Rage", rate: 0.0183 },
+            { name: "BON Dawn Crystal - Accuracy", rate: 0.0178 },
+            { name: "BON Dawn Crystal - Evasion", rate: 0.0177 },
+            { name: "BON Dawn Crystal - Damage Reduction", rate: 0.0169 },
+            { name: "Black Stone", rate: 42.2 }
+        ]
     }
 };
 
@@ -284,6 +322,9 @@ async function fetchPrices() {
             }
         }
 
+        // Calculate derived prices (e.g., Ancient Spirit Dust from crafting formula)
+        calculateDerivedPrices();
+
         statusEl.textContent = '✓ Connected';
         itemCountEl.textContent = count.toLocaleString();
 
@@ -302,6 +343,21 @@ async function fetchPrices() {
         // Still load manual prices even if API fails
         marketPrices = { ...MANUAL_PRICES };
     }
+}
+
+// ===== Calculate Derived Prices =====
+function calculateDerivedPrices() {
+    Object.entries(CALCULATED_ITEMS).forEach(([key, item]) => {
+        const calculatedPrice = item.calculate(marketPrices);
+        if (calculatedPrice > 0) {
+            // Override with calculated price (marked as calculated)
+            marketPrices[key] = {
+                name: item.name,
+                price: calculatedPrice,
+                calculated: true
+            };
+        }
+    });
 }
 
 // ===== Parse CSV Line (handles quoted values) =====
@@ -400,13 +456,14 @@ function updateItemsTable() {
             : getPrice(item.name);
         const silverPerHour = item.disabled ? 0 : priceData.price * item.rate;
         const isManual = item.manualPrice || MANUAL_PRICES[item.name.toLowerCase()];
+        const isCalculated = priceData.calculated;
         const isDisabled = item.disabled;
 
         const tr = document.createElement('tr');
         if (isDisabled) tr.classList.add('item-disabled');
 
         tr.innerHTML = `
-            <td>${item.name}${isManual ? ' <span class="manual-tag">M</span>' : ''}</td>
+            <td>${item.name}${isManual ? ' <span class="manual-tag">M</span>' : ''}${isCalculated ? ' <span class="calc-tag">C</span>' : ''}</td>
             <td class="price-cell">${formatPrice(priceData.price)}${priceData.price === 0 ? ' <span class="no-price">⚠</span>' : ''}</td>
             <td>${item.rate}</td>
             <td class="silver-cell">${isDisabled ? '—' : formatSilver(silverPerHour)}</td>
