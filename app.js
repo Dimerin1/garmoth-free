@@ -744,10 +744,14 @@ function updateComparisonTable() {
         const earnings320 = calculateSpotEarnings(key, 3.2);
         const earnings370 = calculateSpotEarnings(key, 3.7);
 
+        // Get custom trash rate or use default
+        const customTrashRate = getCustomTrashRate(key);
+        const trashRate = customTrashRate !== null ? customTrashRate : spot.trash.rate;
+
         return {
             key,
             name: spot.name,
-            trashRate: spot.trash.rate,
+            trashRate: trashRate,
             total100: earnings100.total,
             total320: earnings320.total,
             total370: earnings370.total
