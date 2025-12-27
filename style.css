@@ -118,6 +118,178 @@ header h1 {
     border-color: var(--accent-gold);
 }
 
+/* ===== Comparison Section ===== */
+.comparison-section {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+}
+
+.comparison-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.comparison-header h2 {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.comparison-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.toggle-btn {
+    padding: 0.4rem 0.8rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.toggle-btn:hover {
+    background: var(--accent-gold);
+    color: var(--bg-primary);
+    border-color: var(--accent-gold);
+}
+
+.comparison-table-container {
+    overflow-x: auto;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.comparison-table-container.collapsed {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+}
+
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.comparison-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    background: var(--bg-tertiary);
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.comparison-table th.sortable {
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.comparison-table th.sortable:hover {
+    color: var(--accent-gold);
+}
+
+.comparison-table th.sortable.active {
+    color: var(--accent-gold);
+}
+
+.sort-icon {
+    margin-left: 0.25rem;
+    opacity: 0.5;
+}
+
+.comparison-table th.active .sort-icon {
+    opacity: 1;
+}
+
+.comparison-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.comparison-table tbody tr {
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.comparison-table tbody tr:hover {
+    background: rgba(255, 193, 7, 0.1);
+}
+
+.comparison-table tbody tr.selected {
+    background: rgba(255, 193, 7, 0.15);
+    border-left: 3px solid var(--accent-gold);
+}
+
+.comparison-table .spot-name {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.comparison-table .silver-value {
+    font-weight: 600;
+    color: var(--accent-gold);
+}
+
+.comparison-table .silver-value.best {
+    color: var(--accent-green);
+    position: relative;
+}
+
+.comparison-table .silver-value.best::after {
+    content: "👑";
+    margin-left: 0.5rem;
+    font-size: 0.8rem;
+}
+
+.comparison-table .trash-value {
+    color: var(--text-secondary);
+}
+
+/* Rank badge */
+.rank-badge {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-right: 0.5rem;
+}
+
+.rank-badge.rank-1 {
+    background: linear-gradient(135deg, #ffd700, #ffb800);
+    color: #000;
+}
+
+.rank-badge.rank-2 {
+    background: linear-gradient(135deg, #c0c0c0, #a0a0a0);
+    color: #000;
+}
+
+.rank-badge.rank-3 {
+    background: linear-gradient(135deg, #cd7f32, #b87333);
+    color: #fff;
+}
+
+.rank-badge.rank-other {
+    background: var(--bg-tertiary);
+    color: var(--text-muted);
+}
+
 /* ===== Main Grid ===== */
 .main-grid {
     display: grid;

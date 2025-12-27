@@ -202,15 +202,68 @@ const GRIND_SPOTS = {
 let marketPrices = {};
 let grindItems = [];
 let currentSpot = "darkseeker's retreat";
+let comparisonSortKey = 'total320';
+let comparisonSortAsc = false;
+let comparisonVisible = true;
+
+// ===== LocalStorage Keys =====
+const STORAGE_KEY_DISABLED = 'bdo_tracker_disabled_items';
+const STORAGE_KEY_CUSTOM_RATES = 'bdo_tracker_custom_rates';
+const STORAGE_KEY_COMPARISON_VISIBLE = 'bdo_tracker_comparison_visible';
 
 // ===== Initialize =====
 document.addEventListener('DOMContentLoaded', async () => {
+    loadSavedSettings();
     populateSpotDropdown();
     await fetchPrices();
     loadSpot(currentSpot);
     setupEventListeners();
     updateResults();
+    updateComparisonTable();
 });
+
+// ===== Load Saved Settings from LocalStorage =====
+function loadSavedSettings() {
+    // Load comparison visibility preference
+    const savedVisibility = localStorage.getItem(STORAGE_KEY_COMPARISON_VISIBLE);
+    if (savedVisibility !== null) {
+        comparisonVisible = savedVisibility === 'true';
+        const container = document.getElementById('comparisonContainer');
+        const toggleIcon = document.getElementById('toggleIcon');
+        const toggleText = document.getElementById('toggleText');
+        if (!comparisonVisible) {
+            container.classList.add('collapsed');
+            toggleIcon.textContent = '▶';
+            toggleText.textContent = 'Show';
+        }
+    }
+}
+
+// ===== Get Disabled Items for a Spot =====
+function getDisabledItems(spotKey) {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY_DISABLED);
+        if (saved) {
+            const allDisabled = JSON.parse(saved);
+            return allDisabled[spotKey] || [];
+        }
+    } catch (e) {
+        console.error('Error loading disabled items:', e);
+    }
+    return [];
+}
+
+// ===== Save Disabled Items for a Spot =====
+function saveDisabledItems(spotKey, disabledItemNames) {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY_DISABLED);
+        const allDisabled = saved ? JSON.parse(saved) : {};
+        allDisabled[spotKey] = disabledItemNames;
+        localStorage.setItem(STORAGE_KEY_DISABLED, JSON.stringify(allDisabled));
+    } catch (e) {
+        console.error('Error saving disabled items:', e);
+    }
+}
 
 // ===== Populate Spot Dropdown =====
 function populateSpotDropdown() {
@@ -243,9 +296,16 @@ function loadSpot(spotKey) {
         document.getElementById('trashPrice').value = spot.trash.price;
         document.getElementById('trashPerHour').value = spot.trash.rate;
 
-        grindItems = spot.items.map(item => ({ ...item }));
+        // Load items and apply saved disabled state
+        const disabledItems = getDisabledItems(spotKey);
+        grindItems = spot.items.map(item => ({
+            ...item,
+            disabled: disabledItems.includes(item.name)
+        }));
+
         updateItemsTable();
         updateResults();
+        updateComparisonTable();
     }
 }
 
@@ -434,8 +494,16 @@ function addItem() {
 // ===== Toggle Item (Soft Delete) =====
 function toggleItem(index) {
     grindItems[index].disabled = !grindItems[index].disabled;
+
+    // Save disabled items to localStorage
+    const disabledItemNames = grindItems
+        .filter(item => item.disabled)
+        .map(item => item.name);
+    saveDisabledItems(currentSpot, disabledItemNames);
+
     updateItemsTable();
     updateResults();
+    updateComparisonTable();
 }
 
 // ===== Permanently Remove Item =====
@@ -588,4 +656,152 @@ function setupEventListeners() {
 // ===== Refresh Prices =====
 async function refreshPrices() {
     await fetchPrices();
+    updateComparisonTable();
+}
+
+// ===== Calculate Earnings for Any Spot =====
+function calculateSpotEarnings(spotKey, dropRateMultiplier) {
+    const spot = GRIND_SPOTS[spotKey];
+    if (!spot) return { trash: 0, drops: 0, total: 0 };
+
+    // Get disabled items for this spot
+    const disabledItems = getDisabledItems(spotKey);
+
+    // Trash loot is NOT affected by drop rate
+    const trashSilver = spot.trash.price * spot.trash.rate;
+
+    // Drop items ARE affected by drop rate
+    let dropSilver = 0;
+    spot.items.forEach(item => {
+        if (disabledItems.includes(item.name)) return; // Skip disabled items
+        const priceData = getPrice(item.name);
+        dropSilver += priceData.price * item.rate * dropRateMultiplier;
+    });
+
+    return {
+        trash: trashSilver,
+        drops: dropSilver,
+        total: trashSilver + dropSilver
+    };
+}
+
+// ===== Update Comparison Table =====
+function updateComparisonTable() {
+    const tbody = document.getElementById('comparisonBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+
+    // Calculate earnings for all spots
+    const spotData = Object.entries(GRIND_SPOTS).map(([key, spot]) => {
+        const earnings100 = calculateSpotEarnings(key, 1.0);
+        const earnings320 = calculateSpotEarnings(key, 3.2);
+        const earnings370 = calculateSpotEarnings(key, 3.7);
+
+        return {
+            key,
+            name: spot.name,
+            trashRate: spot.trash.rate,
+            total100: earnings100.total,
+            total320: earnings320.total,
+            total370: earnings370.total
+        };
+    });
+
+    // Sort by current sort key
+    spotData.sort((a, b) => {
+        let aVal = a[comparisonSortKey];
+        let bVal = b[comparisonSortKey];
+
+        if (comparisonSortKey === 'name') {
+            aVal = aVal.toLowerCase();
+            bVal = bVal.toLowerCase();
+            return comparisonSortAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+        }
+
+        return comparisonSortAsc ? aVal - bVal : bVal - aVal;
+    });
+
+    // Find best values for highlighting
+    const best320 = Math.max(...spotData.map(s => s.total320));
+
+    // Render rows
+    spotData.forEach((spot, index) => {
+        const rank = index + 1;
+        const rankClass = rank <= 3 ? `rank-${rank}` : 'rank-other';
+        const isSelected = spot.key === currentSpot;
+        const isBest = spot.total320 === best320;
+
+        const tr = document.createElement('tr');
+        tr.className = isSelected ? 'selected' : '';
+        tr.onclick = () => {
+            document.getElementById('spotSelect').value = spot.key;
+            loadSpot(spot.key);
+        };
+
+        tr.innerHTML = `
+            <td class="spot-name">
+                <span class="rank-badge ${rankClass}">${rank}</span>
+                ${spot.name}
+            </td>
+            <td class="silver-value">${formatSilver(spot.total100)}</td>
+            <td class="silver-value ${isBest ? 'best' : ''}">${formatSilver(spot.total320)}</td>
+            <td class="silver-value">${formatSilver(spot.total370)}</td>
+            <td class="trash-value">${spot.trashRate.toLocaleString()}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    // Update sort indicators
+    updateSortIndicators();
+}
+
+// ===== Update Sort Indicators =====
+function updateSortIndicators() {
+    const headers = document.querySelectorAll('.comparison-table th.sortable');
+    headers.forEach(th => {
+        const sortKey = th.getAttribute('onclick').match(/'([^']+)'/)[1];
+        const iconSpan = th.querySelector('.sort-icon');
+
+        if (sortKey === comparisonSortKey) {
+            th.classList.add('active');
+            iconSpan.textContent = comparisonSortAsc ? '▲' : '▼';
+        } else {
+            th.classList.remove('active');
+            iconSpan.textContent = '';
+        }
+    });
+}
+
+// ===== Sort Comparison Table =====
+function sortComparison(key) {
+    if (comparisonSortKey === key) {
+        comparisonSortAsc = !comparisonSortAsc;
+    } else {
+        comparisonSortKey = key;
+        comparisonSortAsc = key === 'name'; // Ascending for name, descending for values
+    }
+    updateComparisonTable();
+}
+
+// ===== Toggle Comparison Table Visibility =====
+function toggleComparison() {
+    const container = document.getElementById('comparisonContainer');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+
+    comparisonVisible = !comparisonVisible;
+
+    if (comparisonVisible) {
+        container.classList.remove('collapsed');
+        toggleIcon.textContent = '▼';
+        toggleText.textContent = 'Hide';
+    } else {
+        container.classList.add('collapsed');
+        toggleIcon.textContent = '▶';
+        toggleText.textContent = 'Show';
+    }
+
+    // Save preference
+    localStorage.setItem(STORAGE_KEY_COMPARISON_VISIBLE, comparisonVisible.toString());
 }

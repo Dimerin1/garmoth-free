@@ -28,6 +28,39 @@
             <button class="refresh-btn" onclick="refreshPrices()">🔄 Refresh Prices</button>
         </div>
 
+        <!-- All Spots Comparison -->
+        <section class="comparison-section">
+            <div class="comparison-header">
+                <h2>📊 All Spots Comparison</h2>
+                <div class="comparison-controls">
+                    <button class="toggle-btn" onclick="toggleComparison()">
+                        <span id="toggleIcon">▼</span> <span id="toggleText">Hide</span>
+                    </button>
+                </div>
+            </div>
+            <div class="comparison-table-container" id="comparisonContainer">
+                <table class="comparison-table" id="comparisonTable">
+                    <thead>
+                        <tr>
+                            <th class="sortable" onclick="sortComparison('name')">Spot <span class="sort-icon"></span>
+                            </th>
+                            <th class="sortable" onclick="sortComparison('total100')">100% Silver/hr <span
+                                    class="sort-icon"></span></th>
+                            <th class="sortable active" onclick="sortComparison('total320')">320% Silver/hr <span
+                                    class="sort-icon">▼</span></th>
+                            <th class="sortable" onclick="sortComparison('total370')">370% Silver/hr <span
+                                    class="sort-icon"></span></th>
+                            <th>Trash/hr</th>
+                        </tr>
+                    </thead>
+                    <tbody id="comparisonBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+
         <div class="main-grid">
             <!-- Left Panel: Spot Configuration -->
             <section class="config-panel">
