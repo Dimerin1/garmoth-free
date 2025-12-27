@@ -9,6 +9,7 @@ const MANUAL_PRICES = {
     // Paint items (not on market)
     "darkseekers' retreat paint": { name: "Darkseekers' Retreat Paint", price: 0 },
     "ash forest paint": { name: "Ash Forest Paint", price: 0 },
+    "tungrad ruins paint": { name: "Tungrad Ruins Paint", price: 0 },
     "lafi bedmountain's upgraded telescope": { name: "Lafi Bedmountain's Upgraded Telescope", price: 0 }
 };
 
@@ -120,6 +121,41 @@ const GRIND_SPOTS = {
             { name: "Crystal of Unyielding Spirit", rate: 0.055 },
             { name: "Crystal of Dogged Patience", rate: 0.0543 },
             { name: "Ash Forest Paint", rate: 0.109 }
+        ]
+    },
+    "unlucky golden pig cave": {
+        name: "Unlucky Golden Pig Cave",
+        trash: { name: "Shattered Treasures", price: 59000, rate: 29296 },
+        items: [
+            { name: "Essence of Dawn", rate: 3.42 },
+            { name: "WON Dawn Crystal - All AP", rate: 1.16 },
+            { name: "BON Dawn Crystal - All AP", rate: 0.0782 },
+            { name: "Faint Origin of Dark Hunger", rate: 0.121 },
+            { name: "Caphras Stone", rate: 16 },
+            { name: "Ancient Spirit Dust", rate: 78.5 },
+            { name: "Black Stone", rate: 88.1 },
+            { name: "Fortunate Golden Pig King Summon Scroll", rate: 0.807 }
+        ]
+    },
+    "tungrad ruins": {
+        name: "Tungrad Ruins",
+        trash: { name: "Tungrad Ruins Fragment", price: 35000, rate: 49518 },
+        items: [
+            { name: "Essence of Devouring", rate: 1.21 },
+            { name: "Sealed Black Magic Crystal", rate: 24.9 },
+            { name: "Forgotten Limbo Box", rate: 0.0543 },
+            { name: "Ancient Spirit Dust", rate: 188 },
+            { name: "Specter's Energy", rate: 1.69 },
+            { name: "Origin of Dark Hunger", rate: 0.0392 },
+            { name: "Black Stone", rate: 125 },
+            { name: "Embers of Resonance", rate: 0.48 },
+            { name: "Trace of Nature", rate: 26.3 },
+            { name: "Imperfect Lightstone of Fire", rate: 1.17 },
+            { name: "Kuadir Fragment", rate: 0.213 },
+            { name: "Imperfect Lightstone of Earth", rate: 0.135 },
+            { name: "Imperfect Lightstone of Wind", rate: 0.0867 },
+            { name: "Ancient Magic Crystal of Nature - Adamantine", rate: 0.089 },
+            { name: "Tungrad Ruins Paint", rate: 0.102 }
         ]
     }
 };
