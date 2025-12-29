@@ -157,7 +157,7 @@ const GRIND_SPOTS = {
     },
     "tungrad ruins": {
         name: "Tungrad Ruins",
-        trash: { name: "Tungrad Ruins Fragment", price: 35000, rate: 49518 },
+        trash: { name: "Tungrad Ruins Fragment", price: 35000, rate: 49535 },
         items: [
             { name: "Essence of Devouring", rate: 1.21 },
             { name: "Sealed Black Magic Crystal", rate: 24.9 },
@@ -172,8 +172,9 @@ const GRIND_SPOTS = {
             { name: "Kuadir Fragment", rate: 0.213 },
             { name: "Imperfect Lightstone of Earth", rate: 0.135 },
             { name: "Imperfect Lightstone of Wind", rate: 0.0867 },
-            { name: "Ancient Magic Crystal of Nature - Adamantine", rate: 0.089 },
-            { name: "Tungrad Ruins Paint", rate: 0.102 }
+            { name: "Ancient Magic Crystal of Nature - Adamantine", rate: 0.0889 },
+            { name: "Tungrad Ruins Paint", rate: 0.102 },
+            { name: "Lafi Bedmountain's Upgraded Telescope", rate: 0.0134 }
         ]
     },
     "dokkebi forest": {
@@ -609,8 +610,8 @@ function calculateEarnings(dropRateMultiplier) {
 // ===== Update Results Display =====
 function updateResults() {
     const earnings100 = calculateEarnings(1.0);
-    const earnings320 = calculateEarnings(3.2);
-    const earnings370 = calculateEarnings(3.7);
+    const earnings320 = calculateEarnings(2.2);  // 320% = +220% bonus = 2.2x multiplier
+    const earnings370 = calculateEarnings(2.7);  // 370% = +270% bonus = 2.7x multiplier
 
     // Update 100% card
     document.getElementById('trash100').textContent = formatSilver(earnings100.trash);
