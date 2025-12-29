@@ -323,9 +323,15 @@ function loadSpot(spotKey) {
         document.getElementById('trashName').value = spot.trash.name;
         document.getElementById('trashPrice').value = spot.trash.price;
 
+        // Set Garmoth baseline trash rate
+        document.getElementById('baselineTrash').textContent = spot.trash.rate.toLocaleString();
+
         // Load custom trash rate or use default
         const customTrashRate = getCustomTrashRate(spotKey);
         document.getElementById('trashPerHour').value = customTrashRate !== null ? customTrashRate : spot.trash.rate;
+
+        // Update trash comparison
+        updateTrashComparison(spot.trash.rate);
 
         // Load items and apply saved disabled state
         const disabledItems = getDisabledItems(spotKey);
@@ -340,6 +346,41 @@ function loadSpot(spotKey) {
     }
 }
 
+// ===== Update Trash Comparison Display =====
+function updateTrashComparison(baselineRate) {
+    const customRate = parseInt(document.getElementById('trashPerHour').value) || 0;
+    const baseline = baselineRate || (GRIND_SPOTS[currentSpot]?.trash?.rate || 0);
+
+    const diff = customRate - baseline;
+    const diffPercent = baseline > 0 ? ((diff / baseline) * 100).toFixed(1) : 0;
+
+    const diffEl = document.getElementById('trashDiff');
+    const diffContainer = document.getElementById('trashDiffContainer');
+    const diffUnit = diffContainer.querySelector('.stat-unit');
+
+    if (diff >= 0) {
+        diffEl.textContent = '+' + diff.toLocaleString();
+        diffUnit.textContent = `(+${diffPercent}%)`;
+        diffContainer.classList.remove('negative');
+    } else {
+        diffEl.textContent = diff.toLocaleString();
+        diffUnit.textContent = `(${diffPercent}%)`;
+        diffContainer.classList.add('negative');
+    }
+}
+
+// ===== On Trash Rate Change =====
+function onTrashRateChange() {
+    updateTrashComparison();
+    updateResults();
+
+    // Save custom rate to localStorage
+    const customRate = parseInt(document.getElementById('trashPerHour').value) || 0;
+    if (currentSpot && currentSpot !== 'custom') {
+        saveCustomTrashRate(currentSpot, customRate);
+    }
+}
+
 // ===== On Spot Change =====
 function onSpotChange() {
     const select = document.getElementById('spotSelect');
@@ -351,6 +392,8 @@ function onSpotChange() {
         document.getElementById('trashName').value = '';
         document.getElementById('trashPrice').value = '';
         document.getElementById('trashPerHour').value = '';
+        document.getElementById('baselineTrash').textContent = '—';
+        document.getElementById('trashDiff').textContent = '—';
         grindItems = [];
         updateItemsTable();
         updateResults();

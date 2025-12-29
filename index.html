@@ -80,18 +80,31 @@
 
                 <div class="trash-section">
                     <h3>🗑️ Trash Loot</h3>
-                    <div class="input-row">
-                        <div class="input-group">
-                            <label>Trash Item Name</label>
-                            <input type="text" id="trashName" value="Decayed Cloth" placeholder="Trash item name">
+                    <div class="input-group">
+                        <label>Trash Item Name</label>
+                        <input type="text" id="trashName" value="Decayed Cloth" placeholder="Trash item name" readonly>
+                    </div>
+                    <div class="input-group">
+                        <label>NPC Price (Silver)</label>
+                        <input type="number" id="trashPrice" value="46000" placeholder="46000" readonly>
+                    </div>
+
+                    <div class="trash-comparison">
+                        <div class="trash-stat baseline">
+                            <span class="stat-label">📊 Garmoth Baseline</span>
+                            <span class="stat-value" id="baselineTrash">35,361</span>
+                            <span class="stat-unit">/hr</span>
                         </div>
-                        <div class="input-group">
-                            <label>NPC Price (Silver)</label>
-                            <input type="number" id="trashPrice" value="46000" placeholder="46000">
+                        <div class="trash-stat custom">
+                            <span class="stat-label">⚔️ Your Rate</span>
+                            <input type="number" id="trashPerHour" class="stat-input" value="41000"
+                                placeholder="Your trash/hr" oninput="onTrashRateChange()">
+                            <span class="stat-unit">/hr</span>
                         </div>
-                        <div class="input-group">
-                            <label>Your Trash/Hour</label>
-                            <input type="number" id="trashPerHour" value="41000" placeholder="41000">
+                        <div class="trash-stat diff" id="trashDiffContainer">
+                            <span class="stat-label">📈 Difference</span>
+                            <span class="stat-value" id="trashDiff">+5,639</span>
+                            <span class="stat-unit">(+15.9%)</span>
                         </div>
                     </div>
                 </div>

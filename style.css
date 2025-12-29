@@ -418,6 +418,105 @@ header h1 {
     gap: 1rem;
 }
 
+/* ===== Trash Comparison Display ===== */
+.trash-comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.trash-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    background: var(--bg-tertiary);
+    text-align: center;
+}
+
+.trash-stat.baseline {
+    border-left: 3px solid var(--accent-blue);
+}
+
+.trash-stat.custom {
+    border-left: 3px solid var(--accent-gold);
+}
+
+.trash-stat.diff {
+    border-left: 3px solid var(--accent-green);
+}
+
+.trash-stat.diff.negative {
+    border-left-color: var(--accent-red);
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.trash-stat.baseline .stat-value {
+    color: var(--accent-blue);
+}
+
+.trash-stat.custom .stat-value,
+.stat-input {
+    color: var(--accent-gold);
+}
+
+.trash-stat.diff .stat-value {
+    color: var(--accent-green);
+}
+
+.trash-stat.diff.negative .stat-value {
+    color: var(--accent-red);
+}
+
+.stat-unit {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
+.stat-input {
+    width: 100%;
+    max-width: 120px;
+    padding: 0.5rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--accent-gold);
+    border-radius: var(--radius-sm);
+    color: var(--accent-gold);
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.stat-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.3);
+}
+
+@media (max-width: 600px) {
+    .trash-comparison {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 600px) {
     .input-row {
         grid-template-columns: 1fr;
