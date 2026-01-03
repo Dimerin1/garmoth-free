@@ -10,236 +10,105 @@
 </head>
 
 <body>
-    <div class="container">
-        <header>
-            <h1>⚔️ BDO Grind Tracker</h1>
-            <p class="subtitle">Calculate earnings with live market prices</p>
+    <div class="app">
+        <!-- Header Bar -->
+        <header class="top-bar">
+            <div class="logo">
+                <span class="logo-icon">⚔️</span>
+                <span class="logo-text">BDO Grind Tracker</span>
+            </div>
+            <div class="top-controls">
+                <select id="dropAmountSelect" class="drop-amount-btn" onchange="onDropAmountChange()">
+                    <option value="100">100%</option>
+                    <option value="150">150%</option>
+                    <option value="200">200%</option>
+                    <option value="250">250%</option>
+                </select>
+            </div>
         </header>
 
-        <div class="status-bar">
-            <div class="status-item">
-                <span class="status-label">Market Prices</span>
-                <span class="status-value" id="priceStatus">Loading...</span>
+        <!-- Spot Header -->
+        <div class="spot-header">
+            <div class="spot-title">
+                <select id="spotSelect" class="spot-select" onchange="onSpotChange()">
+                    <!-- Populated by JavaScript -->
+                </select>
             </div>
-            <div class="status-item">
-                <span class="status-label">Items Loaded</span>
-                <span class="status-value" id="itemCount">0</span>
-            </div>
-            <button class="refresh-btn" onclick="refreshPrices()">🔄 Refresh Prices</button>
-        </div>
-
-        <!-- All Spots Comparison -->
-        <section class="comparison-section">
-            <div class="comparison-header">
-                <h2>📊 All Spots Comparison</h2>
-                <div class="comparison-controls">
-                    <button class="toggle-btn" onclick="toggleComparison()">
-                        <span id="toggleIcon">▼</span> <span id="toggleText">Hide</span>
-                    </button>
+            <div class="spot-stats">
+                <div class="stat-block">
+                    <span class="stat-value" id="avgSilver">0</span>
+                    <span class="stat-label">Silver/hr</span>
+                </div>
+                <div class="stat-block">
+                    <span class="stat-value" id="avgTrash">0</span>
+                    <span class="stat-label">Trash/hr</span>
+                </div>
+                <div class="stat-block">
+                    <span class="stat-value" id="trashPrice">46K</span>
+                    <span class="stat-label">Trash Price</span>
                 </div>
             </div>
-            <div class="comparison-table-container" id="comparisonContainer">
-                <table class="comparison-table" id="comparisonTable">
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Items Table -->
+            <div class="items-panel">
+                <table class="items-table">
                     <thead>
                         <tr>
-                            <th class="sortable" onclick="sortComparison('name')">Spot <span class="sort-icon"></span>
-                            </th>
-                            <th class="sortable" onclick="sortComparison('total100')">100% Silver/hr <span
-                                    class="sort-icon"></span></th>
-                            <th class="sortable active" onclick="sortComparison('total320')">320% Silver/hr <span
-                                    class="sort-icon">▼</span></th>
-                            <th class="sortable" onclick="sortComparison('total370')">370% Silver/hr <span
-                                    class="sort-icon"></span></th>
-                            <th>Trash/hr</th>
+                            <th class="col-name">Name</th>
+                            <th class="col-price">Price</th>
+                            <th class="col-rate">Hourly Rate</th>
+                            <th class="col-silver">Silver/hr</th>
+                            <th class="col-actions"></th>
                         </tr>
                     </thead>
-                    <tbody id="comparisonBody">
-                        <!-- Populated by JavaScript -->
+                    <tbody id="itemsBody">
+                        <!-- Trash loot row -->
+                        <tr class="trash-row">
+                            <td class="col-name">
+                                <span class="item-icon">🗑️</span>
+                                <span class="item-name" id="trashName">Decayed Cloth</span>
+                            </td>
+                            <td class="col-price" id="trashPriceCell">46 K</td>
+                            <td class="col-rate">
+                                <input type="number" id="trashPerHour" class="rate-input" value="20856"
+                                    oninput="onTrashRateChange()">
+                            </td>
+                            <td class="col-silver" id="trashSilver">959,776,000</td>
+                            <td class="col-actions"></td>
+                        </tr>
+                        <!-- Items populated by JavaScript -->
                     </tbody>
                 </table>
             </div>
-        </section>
 
-
-        <div class="main-grid">
-            <!-- Left Panel: Spot Configuration -->
-            <section class="config-panel">
-                <h2>📍 Grind Spot Setup</h2>
-
-                <div class="input-group">
-                    <label>Select Spot</label>
-                    <select id="spotSelect" class="spot-select">
-                        <!-- Populated by JavaScript -->
-                    </select>
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-section">
+                    <h3>Market Status</h3>
+                    <div class="status-row">
+                        <span>Prices</span>
+                        <span class="status-badge" id="priceStatus">Loading...</span>
+                    </div>
+                    <div class="status-row">
+                        <span>Items</span>
+                        <span id="itemCount">0</span>
+                    </div>
+                    <button class="refresh-btn" onclick="refreshPrices()">🔄 Refresh</button>
                 </div>
 
-                <div class="input-group">
-                    <label>Spot Name</label>
-                    <input type="text" id="spotName" value="Darkseeker's Retreat" placeholder="Enter spot name">
+                <div class="sidebar-section">
+                    <h3>Add Item</h3>
+                    <input type="text" id="newItemName" class="input-field" placeholder="Item name"
+                        list="itemSuggestions">
+                    <datalist id="itemSuggestions"></datalist>
+                    <input type="number" id="newItemRate" class="input-field" placeholder="Drops/hr" step="0.001">
+                    <button class="add-btn" onclick="addItem()">+ Add</button>
                 </div>
-
-                <div class="trash-section">
-                    <h3>🗑️ Trash Loot</h3>
-                    <div class="trash-info-row">
-                        <div class="input-group compact">
-                            <label>Trash Item</label>
-                            <input type="text" id="trashName" value="Decayed Cloth" readonly>
-                        </div>
-                        <div class="input-group compact">
-                            <label>NPC Price</label>
-                            <input type="number" id="trashPrice" value="46000" readonly>
-                        </div>
-                        <div class="input-group compact">
-                            <label>Drop Amount</label>
-                            <select id="dropAmountSelect" class="drop-select" onchange="onDropAmountChange()">
-                                <option value="100" selected>100%</option>
-                                <option value="150">150%</option>
-                                <option value="200">200%</option>
-                                <option value="250">250%</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="trash-comparison-simple">
-                        <div class="trash-box garmoth">
-                            <span class="box-label">Garmoth Avg</span>
-                            <span class="box-value" id="baselineTrash">35,361</span>
-                        </div>
-                        <div class="trash-box yours">
-                            <span class="box-label">Your Rate</span>
-                            <input type="number" id="trashPerHour" class="box-input" value="22000"
-                                oninput="onTrashRateChange()">
-                        </div>
-                        <div class="trash-box diff" id="trashDiffContainer">
-                            <span class="box-label">Difference</span>
-                            <span class="box-value" id="trashDiff">-13,361</span>
-                            <span class="box-percent" id="trashDiffPercent">(-37.8%)</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="items-section">
-                    <h3>💎 Drop Items</h3>
-                    <div class="add-item-row">
-                        <input type="text" id="newItemName" placeholder="Item name (from market)"
-                            list="itemSuggestions">
-                        <datalist id="itemSuggestions"></datalist>
-                        <input type="number" id="newItemRate" placeholder="Drops/hr" step="0.001">
-                        <button class="add-btn" onclick="addItem()">+ Add</button>
-                    </div>
-
-                    <div class="items-table-container">
-                        <table class="items-table" id="itemsTable">
-                            <thead>
-                                <tr>
-                                    <th>Item</th>
-                                    <th>Market Price</th>
-                                    <th>Drops/hr</th>
-                                    <th>Silver/hr (100%)</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody id="itemsBody">
-                                <!-- Items added dynamically -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Right Panel: Results -->
-            <section class="results-panel">
-                <h2>💰 Earnings Breakdown</h2>
-
-                <div class="results-cards">
-                    <div class="result-card base">
-                        <div class="card-header">
-                            <span class="rate-badge">100%</span>
-                            <span class="rate-label">Base Drop Rate</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="trash-earnings">
-                                <span class="label">Trash Loot</span>
-                                <span class="value" id="trash100">0</span>
-                            </div>
-                            <div class="drop-earnings">
-                                <span class="label">Drop Items</span>
-                                <span class="value" id="drops100">0</span>
-                            </div>
-                            <div class="total-earnings">
-                                <span class="label">Total Silver/hr</span>
-                                <span class="value" id="total100">0</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="result-card scroll">
-                        <div class="card-header">
-                            <span class="rate-badge">320%</span>
-                            <span class="rate-label">Loot Scroll + Agris</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="trash-earnings">
-                                <span class="label">Trash Loot</span>
-                                <span class="value" id="trash320">0</span>
-                            </div>
-                            <div class="drop-earnings">
-                                <span class="label">Drop Items</span>
-                                <span class="value" id="drops320">0</span>
-                            </div>
-                            <div class="total-earnings">
-                                <span class="label">Total Silver/hr</span>
-                                <span class="value" id="total320">0</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="result-card arsha">
-                        <div class="card-header">
-                            <span class="rate-badge">370%</span>
-                            <span class="rate-label">Arsha Server</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="trash-earnings">
-                                <span class="label">Trash Loot</span>
-                                <span class="value" id="trash370">0</span>
-                            </div>
-                            <div class="drop-earnings">
-                                <span class="label">Drop Items</span>
-                                <span class="value" id="drops370">0</span>
-                            </div>
-                            <div class="total-earnings">
-                                <span class="label">Total Silver/hr</span>
-                                <span class="value" id="total370">0</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="comparison-chart">
-                    <h3>📊 Comparison</h3>
-                    <div class="chart-bars">
-                        <div class="bar-group">
-                            <div class="bar bar-100" id="bar100"></div>
-                            <span>100%</span>
-                        </div>
-                        <div class="bar-group">
-                            <div class="bar bar-320" id="bar320"></div>
-                            <span>320%</span>
-                        </div>
-                        <div class="bar-group">
-                            <div class="bar bar-370" id="bar370"></div>
-                            <span>370%</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            </div>
         </div>
-
-        <footer>
-            <p>Prices from <a href="https://docs.google.com/spreadsheets/d/1HJpWrM05pDmreys8pmg0VuV0e5ZDJ0ePp_mXI-hGsJc"
-                    target="_blank">BDO Market API</a> • Built for grinders 🎮</p>
-        </footer>
     </div>
 
     <script src="app.js"></script>

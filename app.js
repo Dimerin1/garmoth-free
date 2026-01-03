@@ -319,19 +319,21 @@ function loadSpot(spotKey) {
     if (spot) {
         currentSpot = spotKey;
         document.getElementById('spotSelect').value = spotKey;
-        document.getElementById('spotName').value = spot.name;
-        document.getElementById('trashName').value = spot.trash.name;
-        document.getElementById('trashPrice').value = spot.trash.price;
 
-        // Set Garmoth baseline trash rate
-        document.getElementById('baselineTrash').textContent = spot.trash.rate.toLocaleString();
+        // Update trash row
+        const trashNameEl = document.getElementById('trashName');
+        if (trashNameEl) trashNameEl.textContent = spot.trash.name;
 
-        // Load custom trash rate or use default
+        const trashPriceEl = document.getElementById('trashPriceCell');
+        if (trashPriceEl) trashPriceEl.textContent = formatPrice(spot.trash.price);
+
+        const trashPriceHeader = document.getElementById('trashPrice');
+        if (trashPriceHeader) trashPriceHeader.textContent = formatPrice(spot.trash.price);
+
+        // Load custom trash rate or use Garmoth baseline
         const customTrashRate = getCustomTrashRate(spotKey);
-        document.getElementById('trashPerHour').value = customTrashRate !== null ? customTrashRate : spot.trash.rate;
-
-        // Update trash comparison
-        updateTrashComparison(spot.trash.rate);
+        const trashRate = customTrashRate !== null ? customTrashRate : spot.trash.rate;
+        document.getElementById('trashPerHour').value = trashRate;
 
         // Load items and apply saved disabled state
         const disabledItems = getDisabledItems(spotKey);
@@ -342,7 +344,6 @@ function loadSpot(spotKey) {
 
         updateItemsTable();
         updateResults();
-        updateComparisonTable();
     }
 }
 
@@ -609,33 +610,42 @@ function removeItem(index) {
 // ===== Update Items Table =====
 function updateItemsTable() {
     const tbody = document.getElementById('itemsBody');
+
+    // Keep the trash row, remove only item rows
+    const trashRow = tbody.querySelector('.trash-row');
     tbody.innerHTML = '';
+    if (trashRow) tbody.appendChild(trashRow);
 
     grindItems.forEach((item, index) => {
         const priceData = item.manualPrice
             ? { name: item.name, price: item.manualPrice }
             : getPrice(item.name);
         const silverPerHour = item.disabled ? 0 : priceData.price * item.rate;
-        const isManual = item.manualPrice || MANUAL_PRICES[item.name.toLowerCase()];
-        const isCalculated = priceData.calculated;
         const isDisabled = item.disabled;
 
         const tr = document.createElement('tr');
+        tr.classList.add('item-row');
         if (isDisabled) tr.classList.add('item-disabled');
 
         tr.innerHTML = `
-            <td>${item.name}${isManual ? ' <span class="manual-tag">M</span>' : ''}${isCalculated ? ' <span class="calc-tag">C</span>' : ''}</td>
-            <td class="price-cell">${formatPrice(priceData.price)}${priceData.price === 0 ? ' <span class="no-price">⚠</span>' : ''}</td>
-            <td>${item.rate}</td>
-            <td class="silver-cell">${isDisabled ? '—' : formatSilver(silverPerHour)}</td>
-            <td>
-                <button class="${isDisabled ? 'restore-btn' : 'delete-btn'}" onclick="toggleItem(${index})" title="${isDisabled ? 'Re-enable item' : 'Disable item'}">
+            <td class="col-name">
+                <span class="item-icon">💎</span>
+                <span class="item-name">${item.name}</span>
+            </td>
+            <td class="col-price">${formatPrice(priceData.price)}</td>
+            <td class="col-rate">${item.rate}</td>
+            <td class="col-silver">${isDisabled ? '—' : formatSilver(silverPerHour)}</td>
+            <td class="col-actions">
+                <button class="toggle-btn" onclick="toggleItem(${index})" title="${isDisabled ? 'Enable' : 'Disable'}">
                     ${isDisabled ? '↩' : '✕'}
                 </button>
             </td>
         `;
         tbody.appendChild(tr);
     });
+
+    // Update trash silver
+    updateTrashSilver();
 }
 
 // ===== Get Price from Market Data =====
@@ -646,7 +656,8 @@ function getPrice(itemName) {
 
 // ===== Calculate Earnings =====
 function calculateEarnings(dropRateMultiplier) {
-    const trashPrice = parseInt(document.getElementById('trashPrice').value) || 0;
+    const spot = GRIND_SPOTS[currentSpot];
+    const trashPrice = spot?.trash?.price || 0;
     const trashPerHour = parseInt(document.getElementById('trashPerHour').value) || 0;
 
     // Trash loot is NOT affected by drop rate
@@ -655,7 +666,7 @@ function calculateEarnings(dropRateMultiplier) {
     // Drop items ARE affected by drop rate
     let dropSilver = 0;
     grindItems.forEach(item => {
-        if (item.disabled) return; // Skip disabled items
+        if (item.disabled) return;
         const priceData = item.manualPrice
             ? { price: item.manualPrice }
             : getPrice(item.name);
@@ -669,35 +680,41 @@ function calculateEarnings(dropRateMultiplier) {
     };
 }
 
+// ===== Update Trash Silver Display =====
+function updateTrashSilver() {
+    const spot = GRIND_SPOTS[currentSpot];
+    const trashPrice = spot?.trash?.price || 0;
+    const trashPerHour = parseInt(document.getElementById('trashPerHour').value) || 0;
+    const trashSilver = trashPrice * trashPerHour;
+
+    const trashSilverEl = document.getElementById('trashSilver');
+    if (trashSilverEl) {
+        trashSilverEl.textContent = formatSilver(trashSilver);
+    }
+}
+
 // ===== Update Results Display =====
 function updateResults() {
-    const earnings100 = calculateEarnings(1.0);
-    const earnings320 = calculateEarnings(2.2);  // 320% = +220% bonus = 2.2x multiplier
-    const earnings370 = calculateEarnings(2.7);  // 370% = +270% bonus = 2.7x multiplier
+    const dropAmount = parseInt(document.getElementById('dropAmountSelect')?.value) || 100;
+    const dropRateMultiplier = (100 + dropAmount) / 200;  // Convert to multiplier based on 100% baseline
 
-    // Update 100% card
-    document.getElementById('trash100').textContent = formatSilver(earnings100.trash);
-    document.getElementById('drops100').textContent = formatSilver(earnings100.drops);
-    document.getElementById('total100').textContent = formatSilver(earnings100.total);
+    const earnings = calculateEarnings(dropRateMultiplier);
+    const trashPerHour = parseInt(document.getElementById('trashPerHour').value) || 0;
+    const spot = GRIND_SPOTS[currentSpot];
+    const trashPrice = spot?.trash?.price || 0;
 
-    // Update 320% card
-    document.getElementById('trash320').textContent = formatSilver(earnings320.trash);
-    document.getElementById('drops320').textContent = formatSilver(earnings320.drops);
-    document.getElementById('total320').textContent = formatSilver(earnings320.total);
+    // Update header stats
+    const avgSilverEl = document.getElementById('avgSilver');
+    if (avgSilverEl) avgSilverEl.textContent = formatSilver(earnings.total);
 
-    // Update 370% card
-    document.getElementById('trash370').textContent = formatSilver(earnings370.trash);
-    document.getElementById('drops370').textContent = formatSilver(earnings370.drops);
-    document.getElementById('total370').textContent = formatSilver(earnings370.total);
+    const avgTrashEl = document.getElementById('avgTrash');
+    if (avgTrashEl) avgTrashEl.textContent = trashPerHour.toLocaleString();
 
-    // Update comparison bars
-    const maxTotal = Math.max(earnings100.total, earnings320.total, earnings370.total);
+    const trashPriceEl = document.getElementById('trashPrice');
+    if (trashPriceEl) trashPriceEl.textContent = formatPrice(trashPrice);
 
-    if (maxTotal > 0) {
-        document.getElementById('bar100').style.height = `${(earnings100.total / maxTotal) * 80}%`;
-        document.getElementById('bar320').style.height = `${(earnings320.total / maxTotal) * 80}%`;
-        document.getElementById('bar370').style.height = `${(earnings370.total / maxTotal) * 80}%`;
-    }
+    // Update trash silver in table
+    updateTrashSilver();
 }
 
 // ===== Format Helpers =====
