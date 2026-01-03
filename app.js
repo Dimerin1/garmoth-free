@@ -349,34 +349,21 @@ function loadSpot(spotKey) {
 // ===== Update Trash Comparison Display =====
 function updateTrashComparison(baselineRate) {
     const userTrash = parseInt(document.getElementById('trashPerHour').value) || 0;
-    const userDropAmount = parseInt(document.getElementById('dropAmountSelect')?.value) || 100;
-    const baseline = baselineRate || (GRIND_SPOTS[currentSpot]?.trash?.rate || 0);
+    const dropAmount = parseInt(document.getElementById('dropAmountSelect')?.value) || 100;
+    const baseline100 = baselineRate || (GRIND_SPOTS[currentSpot]?.trash?.rate || 0);
 
-    // Calculate user's "base" trash (at 0% buff) from their input
-    const userMultiplier = (100 + userDropAmount) / 100;  // e.g., 100% = 2x, 250% = 3.5x
-    const userBaseTrash = userTrash / userMultiplier;
+    // Garmoth data is at 100% (which is 2x base multiplier)
+    // Scale to user's selected drop amount
+    const baseMultiplier = 2.0;  // 100% = 2x
+    const userMultiplier = (100 + dropAmount) / 100;  // e.g., 100% = 2x, 250% = 3.5x
+    const garmothAtDropAmount = Math.round(baseline100 * (userMultiplier / baseMultiplier));
 
-    // Calculate what they'd get at 250% (with Agris)
-    const agrisMultiplier = 3.5;  // 250% = 3.5x base
-    const trashWithAgris = Math.round(userBaseTrash * agrisMultiplier);
+    // Update Garmoth display
+    document.getElementById('baselineTrash').textContent = garmothAtDropAmount.toLocaleString();
 
-    // Calculate baseline at user's drop amount for comparison
-    const garmothBaseMultiplier = 2.0;  // Garmoth data is at 100% (2x base)
-    const garmothBaseTrash = baseline / garmothBaseMultiplier;
-    const garmothAtUserAmount = Math.round(garmothBaseTrash * userMultiplier);
-
-    // Update Garmoth baseline display (at user's selected drop amount)
-    document.getElementById('baselineTrash').textContent = garmothAtUserAmount.toLocaleString();
-
-    // Update "With Agris" display
-    const trashWithAgrisEl = document.getElementById('trashWithAgris');
-    if (trashWithAgrisEl) {
-        trashWithAgrisEl.textContent = trashWithAgris.toLocaleString();
-    }
-
-    // Calculate difference from Garmoth at same drop amount
-    const diff = userTrash - garmothAtUserAmount;
-    const diffPercent = garmothAtUserAmount > 0 ? ((diff / garmothAtUserAmount) * 100).toFixed(1) : 0;
+    // Calculate difference
+    const diff = userTrash - garmothAtDropAmount;
+    const diffPercent = garmothAtDropAmount > 0 ? ((diff / garmothAtDropAmount) * 100).toFixed(1) : 0;
 
     const diffEl = document.getElementById('trashDiff');
     const diffContainer = document.getElementById('trashDiffContainer');

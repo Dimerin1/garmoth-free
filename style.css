@@ -514,64 +514,119 @@ header h1 {
 /* ===== Drop Amount Section ===== */
 .trash-info-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 1rem;
     margin-bottom: 1rem;
 }
 
-.input-group.compact input {
+.input-group.compact input,
+.input-group.compact select {
     padding: 0.5rem 0.75rem;
     font-size: 0.9rem;
 }
 
-.drop-amount-section {
-    background: rgba(255, 152, 0, 0.1);
-    border: 1px solid rgba(255, 152, 0, 0.3);
-    border-radius: var(--radius-md);
-    padding: 1rem;
-    margin-bottom: 1rem;
-}
-
-.drop-amount-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-}
-
 .drop-select {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 0.75rem;
     background: var(--bg-tertiary);
-    border: 1px solid var(--accent-amber);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
-    color: var(--accent-amber);
-    font-size: 0.95rem;
-    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
     cursor: pointer;
 }
 
 .drop-select:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.3);
+    border-color: var(--accent-gold);
 }
 
-.trash-stat.agris {
-    border-left: 3px solid var(--accent-amber);
+/* ===== Simple Trash Comparison ===== */
+.trash-comparison-simple {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.75rem;
 }
 
-.trash-stat.agris .stat-value {
-    color: var(--accent-amber);
+.trash-box {
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid var(--border-color);
+}
+
+.trash-box.garmoth {
+    border-top: 3px solid var(--accent-blue);
+}
+
+.trash-box.yours {
+    border-top: 3px solid var(--accent-gold);
+}
+
+.trash-box.diff {
+    border-top: 3px solid var(--accent-green);
+}
+
+.trash-box.diff.negative {
+    border-top-color: var(--accent-red);
+}
+
+.box-label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.box-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.trash-box.garmoth .box-value {
+    color: var(--accent-blue);
+}
+
+.trash-box.diff .box-value {
+    color: var(--accent-green);
+}
+
+.trash-box.diff.negative .box-value {
+    color: var(--accent-red);
+}
+
+.box-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--accent-gold);
+    color: var(--accent-gold);
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    padding: 0;
+}
+
+.box-input:focus {
+    outline: none;
+}
+
+.box-percent {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
 }
 
 @media (max-width: 600px) {
+
     .trash-info-row,
-    .drop-amount-row {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 600px) {
-    .trash-comparison {
+    .trash-comparison-simple {
         grid-template-columns: 1fr;
     }
 }
