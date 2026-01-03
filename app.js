@@ -35,7 +35,7 @@ const CALCULATED_ITEMS = {
 const GRIND_SPOTS = {
     "darkseeker's retreat": {
         name: "Darkseeker's Retreat",
-        trash: { name: "Decayed Cloth", price: 46000, rate: 35361 },
+        trash: { name: "Decayed Cloth", price: 46000, rate: 20856 },
         items: [
             { name: "Essence of Devouring", rate: 1.2 },
             { name: "Sealed Black Magic Crystal", rate: 26.4 },
@@ -56,7 +56,7 @@ const GRIND_SPOTS = {
     },
     "orzekea": {
         name: "Orzekea (Elvia)",
-        trash: { name: "Thorn-Entwined Weapon Fragment", price: 96000, rate: 22381 },
+        trash: { name: "Thorn-Entwined Weapon Fragment", price: 96000, rate: 13218 },
         items: [
             { name: "Gem of Void", rate: 5.91 },
             { name: "Deboreka Earring", rate: 0.368 },
@@ -109,7 +109,7 @@ const GRIND_SPOTS = {
     },
     "aetherion castle": {
         name: "Aetherion Castle",
-        trash: { name: "Chilled Soul Piece", price: 106000, rate: 19052 },
+        trash: { name: "Chilled Soul Piece", price: 106000, rate: 11261 },
         items: [
             { name: "Primordial Fragment", rate: 4.81 },
             { name: "Deboreka Earring", rate: 0.218 },
@@ -125,7 +125,7 @@ const GRIND_SPOTS = {
     },
     "dehkia 2 ash forest": {
         name: "Dehkia 2 Ash Forest",
-        trash: { name: "Tainted Specter's Cloth", price: 53000, rate: 35829 },
+        trash: { name: "Tainted Specter's Cloth", price: 53000, rate: 21130 },
         items: [
             { name: "Deboreka Necklace", rate: 0.688 },
             { name: "Dehkia's Fragment", rate: 2.15 },
@@ -143,7 +143,7 @@ const GRIND_SPOTS = {
     },
     "unlucky golden pig cave": {
         name: "Unlucky Golden Pig Cave",
-        trash: { name: "Shattered Treasures", price: 59000, rate: 29296 },
+        trash: { name: "Shattered Treasures", price: 59000, rate: 17279 },
         items: [
             { name: "Essence of Dawn", rate: 3.42 },
             { name: "WON Dawn Crystal - All AP", rate: 1.16 },
@@ -157,7 +157,7 @@ const GRIND_SPOTS = {
     },
     "tungrad ruins": {
         name: "Tungrad Ruins",
-        trash: { name: "Tungrad Ruins Fragment", price: 35000, rate: 49535 },
+        trash: { name: "Tungrad Ruins Fragment", price: 35000, rate: 29238 },
         items: [
             { name: "Essence of Devouring", rate: 1.21 },
             { name: "Sealed Black Magic Crystal", rate: 24.9 },
