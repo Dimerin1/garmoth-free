@@ -80,31 +80,53 @@
 
                 <div class="trash-section">
                     <h3>🗑️ Trash Loot</h3>
-                    <div class="input-group">
-                        <label>Trash Item Name</label>
-                        <input type="text" id="trashName" value="Decayed Cloth" placeholder="Trash item name" readonly>
+                    <div class="trash-info-row">
+                        <div class="input-group compact">
+                            <label>Trash Item</label>
+                            <input type="text" id="trashName" value="Decayed Cloth" readonly>
+                        </div>
+                        <div class="input-group compact">
+                            <label>NPC Price</label>
+                            <input type="number" id="trashPrice" value="46000" readonly>
+                        </div>
                     </div>
-                    <div class="input-group">
-                        <label>NPC Price (Silver)</label>
-                        <input type="number" id="trashPrice" value="46000" placeholder="46000" readonly>
+                    
+                    <div class="drop-amount-section">
+                        <div class="drop-amount-row">
+                            <div class="input-group">
+                                <label>📊 Your Drop Amount</label>
+                                <select id="dropAmountSelect" class="drop-select" onchange="onDropAmountChange()">
+                                    <option value="0">0% (No buffs)</option>
+                                    <option value="50">50% (LS Lv1)</option>
+                                    <option value="100" selected>100% (LS Lv2)</option>
+                                    <option value="150">150% (Agris only)</option>
+                                    <option value="200">200% (LS1 + Agris)</option>
+                                    <option value="250">250% (LS2 + Agris)</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>⚔️ Your Trash/hr</label>
+                                <input type="number" id="trashPerHour" value="22000" 
+                                    placeholder="Your trash/hr" oninput="onTrashRateChange()">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="trash-comparison">
                         <div class="trash-stat baseline">
-                            <span class="stat-label">📊 Garmoth Baseline</span>
+                            <span class="stat-label">📊 Garmoth (100%)</span>
                             <span class="stat-value" id="baselineTrash">35,361</span>
                             <span class="stat-unit">/hr</span>
                         </div>
-                        <div class="trash-stat custom">
-                            <span class="stat-label">⚔️ Your Rate</span>
-                            <input type="number" id="trashPerHour" class="stat-input" value="41000"
-                                placeholder="Your trash/hr" oninput="onTrashRateChange()">
+                        <div class="trash-stat agris">
+                            <span class="stat-label">🔥 With Agris (250%)</span>
+                            <span class="stat-value" id="trashWithAgris">38,500</span>
                             <span class="stat-unit">/hr</span>
                         </div>
                         <div class="trash-stat diff" id="trashDiffContainer">
-                            <span class="stat-label">📈 Difference</span>
+                            <span class="stat-label">📈 vs Garmoth</span>
                             <span class="stat-value" id="trashDiff">+5,639</span>
-                            <span class="stat-unit">(+15.9%)</span>
+                            <span class="stat-unit" id="trashDiffPercent">(+15.9%)</span>
                         </div>
                     </div>
                 </div>

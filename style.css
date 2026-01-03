@@ -511,6 +511,65 @@ header h1 {
     box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.3);
 }
 
+/* ===== Drop Amount Section ===== */
+.trash-info-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.input-group.compact input {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+}
+
+.drop-amount-section {
+    background: rgba(255, 152, 0, 0.1);
+    border: 1px solid rgba(255, 152, 0, 0.3);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.drop-amount-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.drop-select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--accent-amber);
+    border-radius: var(--radius-sm);
+    color: var(--accent-amber);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.drop-select:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.3);
+}
+
+.trash-stat.agris {
+    border-left: 3px solid var(--accent-amber);
+}
+
+.trash-stat.agris .stat-value {
+    color: var(--accent-amber);
+}
+
+@media (max-width: 600px) {
+    .trash-info-row,
+    .drop-amount-row {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 600px) {
     .trash-comparison {
         grid-template-columns: 1fr;

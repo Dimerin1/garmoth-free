@@ -348,25 +348,57 @@ function loadSpot(spotKey) {
 
 // ===== Update Trash Comparison Display =====
 function updateTrashComparison(baselineRate) {
-    const customRate = parseInt(document.getElementById('trashPerHour').value) || 0;
+    const userTrash = parseInt(document.getElementById('trashPerHour').value) || 0;
+    const userDropAmount = parseInt(document.getElementById('dropAmountSelect')?.value) || 100;
     const baseline = baselineRate || (GRIND_SPOTS[currentSpot]?.trash?.rate || 0);
 
-    const diff = customRate - baseline;
-    const diffPercent = baseline > 0 ? ((diff / baseline) * 100).toFixed(1) : 0;
+    // Calculate user's "base" trash (at 0% buff) from their input
+    const userMultiplier = (100 + userDropAmount) / 100;  // e.g., 100% = 2x, 250% = 3.5x
+    const userBaseTrash = userTrash / userMultiplier;
+
+    // Calculate what they'd get at 250% (with Agris)
+    const agrisMultiplier = 3.5;  // 250% = 3.5x base
+    const trashWithAgris = Math.round(userBaseTrash * agrisMultiplier);
+
+    // Calculate baseline at user's drop amount for comparison
+    const garmothBaseMultiplier = 2.0;  // Garmoth data is at 100% (2x base)
+    const garmothBaseTrash = baseline / garmothBaseMultiplier;
+    const garmothAtUserAmount = Math.round(garmothBaseTrash * userMultiplier);
+
+    // Update Garmoth baseline display (at user's selected drop amount)
+    document.getElementById('baselineTrash').textContent = garmothAtUserAmount.toLocaleString();
+
+    // Update "With Agris" display
+    const trashWithAgrisEl = document.getElementById('trashWithAgris');
+    if (trashWithAgrisEl) {
+        trashWithAgrisEl.textContent = trashWithAgris.toLocaleString();
+    }
+
+    // Calculate difference from Garmoth at same drop amount
+    const diff = userTrash - garmothAtUserAmount;
+    const diffPercent = garmothAtUserAmount > 0 ? ((diff / garmothAtUserAmount) * 100).toFixed(1) : 0;
 
     const diffEl = document.getElementById('trashDiff');
     const diffContainer = document.getElementById('trashDiffContainer');
-    const diffUnit = diffContainer.querySelector('.stat-unit');
+    const diffPercentEl = document.getElementById('trashDiffPercent');
 
-    if (diff >= 0) {
-        diffEl.textContent = '+' + diff.toLocaleString();
-        diffUnit.textContent = `(+${diffPercent}%)`;
-        diffContainer.classList.remove('negative');
-    } else {
-        diffEl.textContent = diff.toLocaleString();
-        diffUnit.textContent = `(${diffPercent}%)`;
-        diffContainer.classList.add('negative');
+    if (diffEl && diffContainer) {
+        if (diff >= 0) {
+            diffEl.textContent = '+' + diff.toLocaleString();
+            if (diffPercentEl) diffPercentEl.textContent = `(+${diffPercent}%)`;
+            diffContainer.classList.remove('negative');
+        } else {
+            diffEl.textContent = diff.toLocaleString();
+            if (diffPercentEl) diffPercentEl.textContent = `(${diffPercent}%)`;
+            diffContainer.classList.add('negative');
+        }
     }
+}
+
+// ===== On Drop Amount Change =====
+function onDropAmountChange() {
+    updateTrashComparison();
+    updateResults();
 }
 
 // ===== On Trash Rate Change =====
